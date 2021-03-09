@@ -18,14 +18,23 @@ package com.example.androiddevchallenge
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.androiddevchallenge.ui.theme.MyTheme
+import java.util.concurrent.TimeUnit
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -40,7 +49,25 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun MyApp() {
     Surface(color = MaterialTheme.colors.background) {
-        Text(text = "Ready... Set... GO!")
+        CountDownScreen()
+    }
+}
+
+@Composable
+private fun CountDownScreen(viewModel: CountDownViewModel = CountDownViewModel()) {
+    val countDownFormattedTime: String by viewModel.countDownFormattedTime.observeAsState("--:--")
+    val disableStartButton: Boolean by viewModel.isCounting.observeAsState(false)
+
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = countDownFormattedTime)
+            Spacer(modifier = Modifier.padding(10.dp))
+            Button(onClick = {
+                viewModel.startCountDown(TimeUnit.SECONDS.toMillis(10))
+            }, enabled = !disableStartButton) {
+                Text(text = "Start")
+            }
+        }
     }
 }
 
